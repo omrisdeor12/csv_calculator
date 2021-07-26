@@ -38,7 +38,6 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         try:
             result = csv_calculator.calculate(file_content)
         except calculator.FormatException as exception:
-            print(str(exception))
             self.send_response(BAD_FORMAT_STATUS)
             self.end_headers()
             return
