@@ -1,33 +1,48 @@
+import csv
+
 CSV_EXPECTED_LINES = 2
 CSV_EXPECTED_COLUMNS = 3
 
 class FormatException(Exception):
     pass
 
-class CsvCalculator():
-    def calculate(self, csv_content):
-        csv_lines = csv_content.split("\r\n")
+class BaseCalculator():
+    def __init__(self, storage_object):
+        self._storage = storage_object
 
-        if CSV_EXPECTED_LINES != len(csv_lines):
-            raise FormatException("Unexpected number of lines")
+    def calculate(self, file_name):
+        raise NotImplementedError
 
-        header_line = csv_lines[0].split(',')
-        if CSV_EXPECTED_COLUMNS != len(header_line) or header_line[0] != "OP" or header_line[1] != "First" or header_line[2] != "Second":
-           raise FormatException("Failed to parse header line")
+class CsvCalculator(BaseCalculator):
+    def calculate(self, file_name):
+        file_path = self._storage.get_file_path(file_name)
 
-        operation_line = csv_lines[1].split(',')
-        if CSV_EXPECTED_COLUMNS != len(operation_line):
-            raise FormatException("Failed to parse operation line")
+        with open(file_path, "rt") as file_handler:
+            csv_reader = csv.reader(file_handler, delimiter=',')
 
-        if "+" == operation_line[0]:
-            result = int(operation_line[1]) + int(operation_line[2])
-        elif "-" == operation_line[0]:
-            result = int(operation_line[1]) - int(operation_line[2])
-        elif "*" == operation_line[0]:
-            result = int(operation_line[1]) * int(operation_line[2])
-        elif "/" == operation_line[0]:
-            result = int(operation_line[1]) / int(operation_line[2])
-        else:
-            raise FormatException("Operation not valid")
+            first_line = next(csv_reader)
+            print(first_line)
 
-        return result
+            if 'OP' != first_line[0] or 'First' != first_line[1] or 'Second' != first_line[2]:
+                raise FormatException("Header line is in wrong format")
+
+            operation, first, second = tuple(next(csv_reader))
+
+            try:
+                first = int(first)
+                second = int(second)
+            except ValueError:
+                raise FormatException("First or Second is not a number")
+
+            if '+' == operation:
+                result = first + second
+            elif '-' == operation:
+                result = first - second
+            elif '*' == operation:
+                result = first * second
+            elif '/' == operation:
+                result = first / second
+            else:
+                raise FormatException("Operation is not supported")
+
+            return result
