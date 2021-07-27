@@ -18,7 +18,6 @@ class CsvCalculator(BaseCalculator):
             csv_reader = csv.reader(file_handler, delimiter=',')
 
             first_line = next(csv_reader)
-            print(first_line)
 
             if 'OP' != first_line[0] or 'First' != first_line[1] or 'Second' != first_line[2]:
                 raise FormatException("Header line is in wrong format")
