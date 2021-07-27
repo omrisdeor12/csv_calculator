@@ -1,8 +1,5 @@
 import csv
 
-CSV_EXPECTED_LINES = 2
-CSV_EXPECTED_COLUMNS = 3
-
 class FormatException(Exception):
     pass
 
